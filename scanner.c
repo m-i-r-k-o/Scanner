@@ -232,6 +232,21 @@ scanner_token *scanner_next(scanner_lexer *lexer) {
     return token;
 }
 
+scanner_token *scanner_peek(scanner_lexer *lexer, int (*ungetc)(void*, int), size_t (*tell)(void*), void (*seek)(void*, size_t)) {
+    while(lexer->buffer_length > 0) {
+        ungetc(lexer->stream, lexer->buffer[lexer->buffer_length--]);
+    }
+
+    size_t save = tell(lexer->stream);
+    scanner_token *token = scanner_next(lexer);
+
+    lexer->buffer[0] = '\0';
+    lexer->buffer_length = 0;
+
+    seek(lexer->stream, save);
+    return token;
+}
+
 int scanner_fgetc(void *file) {
     return fgetc(file);
 }
@@ -350,11 +365,20 @@ scanner_status scanner_sentence(int c, size_t callnum, void *_) {
     return SCANNER_RECALL;
 }
 
-scanner_status scanner_literal(int c, size_t callnum, void *text) {
+scanner_status scanner_sensitive(int c, size_t callnum, void *text) {
     const char *str = text;
     size_t len = strlen(str);
 
     if(callnum == len) return SCANNER_RETURN;
     if(c != str[callnum]) return SCANNER_FAILURE;
+    return SCANNER_RECALL;
+}
+
+scanner_status scanner_unsensitive(int c, size_t callnum, void *text) {
+    const char *str = text;
+    size_t len = strlen(str);
+
+    if(callnum == len) return SCANNER_RETURN;
+    if(tolower(c) != tolower(str[callnum])) return SCANNER_FAILURE;
     return SCANNER_RECALL;
 }

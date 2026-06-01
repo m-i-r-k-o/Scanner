@@ -65,6 +65,8 @@ scanner_callback scanner_policy(scanner_lexer *lexer, void *id, scanner_callback
 
 scanner_token *scanner_next(scanner_lexer *lexer);
 
+scanner_token *scanner_peek(scanner_lexer *lexer, int (*ungetc)(void*, int), size_t (*tell)(void*), void (*seek)(void*, size_t));
+
 int scanner_fgetc(void *file);
 
 int scanner_string(void *strptr);
@@ -83,6 +85,8 @@ scanner_status scanner_identifier(int c, size_t callnum, void *_);
 
 scanner_status scanner_sentence(int c, size_t callnum, void *_);
 
-scanner_status scanner_literal(int c, size_t callnum, void *text);
+scanner_status scanner_sensitive(int c, size_t callnum, void *text);
+
+scanner_status scanner_unsensitive(int c, size_t callnum, void *text);
 
 #endif
