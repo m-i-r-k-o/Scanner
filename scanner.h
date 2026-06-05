@@ -57,6 +57,12 @@ struct scanner_quoted {
     size_t closing_index;
 };
 
+struct scanner_case {
+    int initialized;
+    const char *text;
+    size_t len;
+};
+
 scanner_lexer *scanner_create(void *stream, int (*getc)(void*), void *eof, void *err);
 
 char *__internal_scanner_close(scanner_lexer *lexer, int option);
@@ -85,8 +91,8 @@ scanner_status scanner_identifier(int c, size_t callnum, void *_);
 
 scanner_status scanner_sentence(int c, size_t callnum, void *_);
 
-scanner_status scanner_sensitive(int c, size_t callnum, void *text);
+scanner_status scanner_sensitive(int c, size_t callnum, void *scanner_case_struct);
 
-scanner_status scanner_unsensitive(int c, size_t callnum, void *text);
+scanner_status scanner_unsensitive(int c, size_t callnum, void *scanner_case_struct);
 
 #endif

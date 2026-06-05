@@ -365,20 +365,26 @@ scanner_status scanner_sentence(int c, size_t callnum, void *_) {
     return SCANNER_RECALL;
 }
 
-scanner_status scanner_sensitive(int c, size_t callnum, void *text) {
-    const char *str = text;
-    size_t len = strlen(str);
+scanner_status scanner_sensitive(int c, size_t callnum, void *scanner_case_struct) {
+    struct scanner_case *text = scanner_case_struct;
+    if(!text->initialized) {
+        text->len = strlen(text->text);
+        text->initialized = 1;
+    }
 
-    if(callnum == len) return SCANNER_RETURN;
-    if(c != str[callnum]) return SCANNER_FAILURE;
+    if(callnum == text->len) return SCANNER_RETURN;
+    if(c != text->text[callnum]) return SCANNER_FAILURE;
     return SCANNER_RECALL;
 }
 
-scanner_status scanner_unsensitive(int c, size_t callnum, void *text) {
-    const char *str = text;
-    size_t len = strlen(str);
+scanner_status scanner_unsensitive(int c, size_t callnum, void *scanner_case_struct) {
+    struct scanner_case *text = scanner_case_struct;
+    if(!text->initialized) {
+        text->len = strlen(text->text);
+        text->initialized = 1;
+    }
 
-    if(callnum == len) return SCANNER_RETURN;
-    if(tolower(c) != tolower(str[callnum])) return SCANNER_FAILURE;
+    if(callnum == text->len) return SCANNER_RETURN;
+    if(tolower(c) != tolower(text->text[callnum])) return SCANNER_FAILURE;
     return SCANNER_RECALL;
 }
