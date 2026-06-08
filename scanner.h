@@ -95,4 +95,6 @@ scanner_status scanner_sensitive(int c, size_t callnum, void *scanner_case_struc
 
 scanner_status scanner_unsensitive(int c, size_t callnum, void *scanner_case_struct);
 
+scanner_status scanner_character(int c, size_t callnum, void *characterp);
+
 #endif

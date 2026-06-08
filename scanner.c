@@ -388,3 +388,9 @@ scanner_status scanner_unsensitive(int c, size_t callnum, void *scanner_case_str
     if(tolower(c) != tolower(text->text[callnum])) return SCANNER_FAILURE;
     return SCANNER_RECALL;
 }
+
+scanner_status scanner_character(int c, size_t callnum, void *characterp) {
+    int *ptr = characterp;
+    if(c != *ptr) return SCANNER_FAILURE;
+    return SCANNER_MATCH;
+}
