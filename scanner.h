@@ -81,6 +81,8 @@ int scanner_string(void *strptr);
 
 int scanner_input(void *reset_input);
 
+void scanner_unescape(char *str);
+
 scanner_status scanner_whitespace(int c, size_t callnum, void *_);
 
 scanner_status scanner_number(int c, size_t callnum, void *_);

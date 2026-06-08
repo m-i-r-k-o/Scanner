@@ -86,6 +86,17 @@ static scanner_token *scanner_build_token(const char *lxme, size_t n, void *id) 
     return token;
 }
 
+static int is_octal(char c) {
+    return (c >= '0' && c <= '7');
+}
+
+static int hex_val(char c) {
+    if (c >= '0' && c <= '9') return c - '0';
+    if (c >= 'a' && c <= 'f') return 10 + (c - 'a');
+    if (c >= 'A' && c <= 'F') return 10 + (c - 'A');
+    return -1;
+}
+
 scanner_lexer *scanner_create(void *stream, int (*getc)(void*), void *eof, void *err) {
     scanner_lexer *lexer = SCANNER_MALLOC(sizeof(scanner_lexer));
     if(!lexer) return NULL;
@@ -271,6 +282,70 @@ int scanner_input(void *reset_input) {
     }
 
     return c;
+}
+
+void scanner_unescape(char *str) {
+    char *dst = str;
+
+    while(*str != '\0') {
+        if(*str == '\\' && *(str + 1) != '\0') {
+            str++;
+            
+            switch(*str) {
+                case 'a':  *dst++ = '\a'; str++; break;
+                case 'b':  *dst++ = '\b'; str++; break;
+                case 'f':  *dst++ = '\f'; str++; break;
+                case 'n':  *dst++ = '\n'; str++; break;
+                case 'r':  *dst++ = '\r'; str++; break;
+                case 't':  *dst++ = '\t'; str++; break;
+                case 'v':  *dst++ = '\v'; str++; break;
+                case '\\': *dst++ = '\\'; str++; break;
+                case '\'': *dst++ = '\''; str++; break;
+                case '\"': *dst++ = '\"'; str++; break;
+                case '?':  *dst++ = '\?'; str++; break;
+
+                case 'x': case 'X': {
+                    str++;
+                    unsigned int value = 0;
+                    int digits = 0;
+                    
+                    while(hex_val(*str) != -1) {
+                        value = (value << 4) | hex_val(*str);
+                        str++;
+                        digits++;
+                    }
+                    
+                    if(digits == 0) {
+                        *dst++ = '\\';
+                        *dst++ = *(str - 1); // Scrive la 'x' o 'X'
+                    } else {
+                        *dst++ = (char)(value & 0xFF);
+                    }
+                    break;
+                }
+
+                default:
+                    if(is_octal(*str)) {
+                        unsigned int value = 0;
+                        int count = 0;
+                        
+                        while(count < 3 && is_octal(*str)) {
+                            value = (value << 3) | (*str - '0');
+                            str++;
+                            count++;
+                        }
+                        *dst++ = (char)(value & 0xFF);
+                    } else {
+                        *dst++ = '\\';
+                        *dst++ = *str++;
+                    }
+                    break;
+            }
+        } else {
+            *dst++ = *str++;
+        }
+    }
+    *dst = '\0';
 }
 
 scanner_status scanner_whitespace(int c, size_t callnum, void *_) {
