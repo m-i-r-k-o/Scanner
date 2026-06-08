@@ -52,8 +52,10 @@ struct scanner_decimal {
 
 struct scanner_quoted {
     int initialized;
-    const char *quote;
-    size_t len;
+    const char *lquote;
+    const char *rquote;
+    size_t llen;
+    size_t rlen;
     size_t closing_index;
 };
 

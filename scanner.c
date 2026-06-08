@@ -326,20 +326,22 @@ scanner_status scanner_decimal(int c, size_t callnum, void *scanner_decimal_stru
 scanner_status scanner_quoted(int c, size_t callnum, void *scanner_quoted_struct) {
     struct scanner_quoted *args = scanner_quoted_struct;
     if(!args->initialized) {
-        if(args->len == 0) args->len = strlen(args->quote);
+        args->llen = strlen(args->lquote);
+        args->rlen = strlen(args->rquote);
         args->closing_index = 0;
         args->initialized = 1;
     }
 
-    if(args->len == 0) return SCANNER_FAILURE;
+    if(args->llen == 0) return SCANNER_FAILURE;
+    if(args->rlen == 0) return SCANNER_FAILURE;
 
-    if(callnum < args->len) {
-        if(c != args->quote[callnum]) return SCANNER_FAILURE;
+    if(callnum < args->llen) {
+        if(c != args->lquote[callnum]) return SCANNER_FAILURE;
         return SCANNER_RECALL;
     }
 
-    if(c == args->quote[args->closing_index]) {
-        if(args->closing_index + 1 == args->len) return SCANNER_MATCH;
+    if(c == args->rquote[args->closing_index]) {
+        if(args->closing_index + 1 == args->rlen) return SCANNER_MATCH;
         args->closing_index++;
     }
 
