@@ -201,7 +201,7 @@ scanner_token *scanner_next(scanner_lexer *lexer) {
             scanner_status status = rule->callback(c, callnum, rule->args);
 
             if(status == SCANNER_MATCH) {
-                if((offset + 1) >= longest_match) {
+                if((offset + 1) > longest_match) {
                     longest_match = offset + 1;
                     matched_id = rule->id;
                 }
@@ -209,7 +209,7 @@ scanner_token *scanner_next(scanner_lexer *lexer) {
             }
 
             else if(status == SCANNER_RETURN) {
-                if(offset >= longest_match) {
+                if(offset > longest_match) {
                     longest_match = offset;
                     matched_id = rule->id;
                 }
